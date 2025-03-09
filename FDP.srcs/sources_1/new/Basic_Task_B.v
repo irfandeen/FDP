@@ -13,21 +13,25 @@ reg [2:0] downButtonState = 0;
 
 // Debounce counter and period (200ms)
 reg [23:0] debounceCounter = 0;
+reg prevPushState = 0;
 localparam DEBOUNCE_PERIOD = 24'd5000000; // 200ms at 25MHz
 
 always @(posedge clock25Mhz) begin
+    if (debounceCounter == 0) begin
+        prevPushState <= upPushButton || centerPushButton || downPushButton;
+    end
     if (debounceCounter > 0) begin
         debounceCounter <= debounceCounter - 1;
     end else begin
-        if (upPushButton) begin
+        if (upPushButton && prevPushState == 0) begin
             upButtonState <= (upButtonState == 5) ? 0 : upButtonState + 1;
             debounceCounter <= DEBOUNCE_PERIOD;
         end
-        if (centerPushButton) begin
+        if (centerPushButton && prevPushState == 0) begin
             centerButtonState <= (centerButtonState == 5) ? 0 : centerButtonState + 1;
             debounceCounter <= DEBOUNCE_PERIOD;
         end
-        if (downPushButton) begin
+        if (downPushButton && prevPushState == 0) begin
             downButtonState <= (downButtonState == 5) ? 0 : downButtonState + 1;
             debounceCounter <= DEBOUNCE_PERIOD;
         end
@@ -98,8 +102,5 @@ assign pixelData =
     16'b00000_000000_00000;
 
 endmodule
-
-
-
 
 
