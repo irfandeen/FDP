@@ -22,12 +22,13 @@ module Top_Student (
     wire [16:0] oled_data_B;
     wire [16:0] oled_data_C;
     wire [16:0] oled_data_D;
+    wire [16:0] oled_data_teamID;
     wire [16:0] oled_data;
     wire [15:0] radius;
 
     reg select_module = 0; // Register to select between oled_moduleA (0) and oled_moduleB (1)
     // Multiplexer to select between oled_moduleA and oled_moduleB
-    assign oled_data = select_module ? oled_data_B : oled_data_D;
+    assign oled_data = select_module ? oled_data_B : oled_data_teamID;
     
     assign main_reset = 0;
     assign radius = 16'd20;
@@ -51,6 +52,7 @@ module Top_Student (
         .clk(clk),
         .pixelData(oled_data_B)
     );
+    
     Basic_Task_D oled_moduleD(
         .pixelIndex(pixel_index),
         .rightPushButton(btnR),
@@ -61,6 +63,11 @@ module Top_Student (
         .pixelData(oled_data_D)
     );
     
+    Team_09_Oled team_oled_module(
+        .pixelIndex(pixel_index),
+        .clk(clock_6_25Mhz),
+        .pixelData(oled_data_teamID)
+    );
     
     Oled_Display oled_driver(
         .clk(clock_6_25Mhz), 
