@@ -12,35 +12,30 @@
 
 module Top_Student (
     input clk,
-    input btnU, btnC, btnD,
+    input btnR, btnL, btnU, btnD, btnC,
     output [7:0] JB
 );
     wire main_reset;
     wire clock_6_25Mhz;
-    wire clock_25Mhz;
     wire [12:0] pixel_index;
     wire [16:0] oled_data_A;
     wire [16:0] oled_data_B;
+    wire [16:0] oled_data_C;
+    wire [16:0] oled_data_D;
     wire [16:0] oled_data;
     wire [15:0] radius;
 
-    reg select_module = 1; // Register to select between oled_moduleA (0) and oled_moduleB (1)
+    reg select_module = 0; // Register to select between oled_moduleA (0) and oled_moduleB (1)
     // Multiplexer to select between oled_moduleA and oled_moduleB
-    assign oled_data = select_module ? oled_data_B : oled_data_A;
+    assign oled_data = select_module ? oled_data_B : oled_data_D;
     
     assign main_reset = 0;
     assign radius = 16'd20;
     
-    // Generate 6.25 MHz clock
+    // Generate 6.25 MHz clock for oled_driver
     flexible_clock #( .CLK_DIV(8) ) clk_gen_6_25Mhz (
         .clk_in(clk),
         .clk_out(clock_6_25Mhz)
-    );
-
-    // Generate 25 Mhz clock
-    flexible_clock #( .CLK_DIV(2) ) clk_gen_25Mhz (
-        .clk_in(clk),
-        .clk_out(clock_25Mhz)
     );
     
     Basic_Task_A oled_moduleA(
@@ -53,9 +48,19 @@ module Top_Student (
         .upPushButton(btnU),
         .centerPushButton(btnC),
         .downPushButton(btnD),
-        .clock25Mhz(clock_25Mhz),
+        .clk(clk),
         .pixelData(oled_data_B)
     );
+    Basic_Task_D oled_moduleD(
+        .pixelIndex(pixel_index),
+        .rightPushButton(btnR),
+        .leftPushButton(btnL),
+        .upPushButton(btnU),
+        .downPushButton(btnD),
+        .clk(clk),
+        .pixelData(oled_data_D)
+    );
+    
     
     Oled_Display oled_driver(
         .clk(clock_6_25Mhz), 
