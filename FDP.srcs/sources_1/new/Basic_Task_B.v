@@ -2,7 +2,7 @@
 
 module Basic_Task_B(
     input [12:0] pixelIndex,
-    input upPushButton, centerPushButton, downPushButton, clock25Mhz,
+    input upPushButton, centerPushButton, downPushButton, clk,
     output [15:0] pixelData
 );
 
@@ -11,12 +11,19 @@ reg [2:0] upButtonState = 0;
 reg [2:0] centerButtonState = 0;
 reg [2:0] downButtonState = 0;
 
+// Generate 25 Mhz clock
+wire clock25MHz;
+flexible_clock #( .CLK_DIV(2) ) clk_gen_25MHz (
+    .clk_in(clk),
+    .clk_out(clock25MHz)
+);
+
 // Debounce counter and period (200ms)
 reg [23:0] debounceCounter = 0;
 reg prevPushState = 0;
 localparam DEBOUNCE_PERIOD = 24'd5000000; // 200ms at 25MHz
 
-always @(posedge clock25Mhz) begin
+always @(posedge clock25MHz) begin
     if (debounceCounter == 0) begin
         prevPushState <= upPushButton || centerPushButton || downPushButton;
     end
